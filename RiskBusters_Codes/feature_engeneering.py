@@ -45,7 +45,7 @@ def caclulate_DTI(df):
         current_installment = 'Current_installment'
         
         # Calculate the DTI for the current period
-        df[f'DTI{i}'] = (
+        df[f'DTI_H{i}'] = (
             (df[inc_trans_amt] - df[out_trans_amt])
             / df[current_installment]
         ).replace([float('inf'), -float('inf')], None)  # Replace infinite values with None
@@ -251,7 +251,7 @@ columns_to_delete_H = ['inc_transactions_amt_H', 'out_transactions_amt_H', 'over
 columns_to_delete = ['Current_installment', 'Birth_date', 'Ref_month',
                      'Contract_end_date', 'Oldest_account_date']
 
-def drop_columns(df):
+def drop_columns(df, columns_to_delete_H):
     # delete columns from list columns_to_delete_H
 
     for colname in columns_to_delete_H:
@@ -263,4 +263,30 @@ def drop_columns(df):
     # drop all columns from columns_to_delete
     df = df.drop(columns_to_delete, axis=1)
 
+    return df
+
+def create_differences_columns(df, columns_H):
+
+    # define the list of columns to iterate
+    list = [[0,3], [0,6], [0,12]]
+    
+    for column in columns_H:
+        for element in list:
+            first_column_sufix = str(element[0])
+            second_column_sufix = str(element[1])
+
+            new_column_name = column + first_column_sufix + '_H' + second_column_sufix
+
+            df[new_column_name] = (df[column + first_column_sufix] - df[column + second_column_sufix])
+             # / df[column + first_column_sufix]
+
+    return df
+
+# drop columns with _H in the name
+def drop_columns_after_transformation(df, columns_H):
+    for colname in columns_H:
+        for i in range(13):
+                colname2 = colname + str(i)
+                if colname2 in df.columns:
+                    df = df.drop(colname2, axis=1)
     return df
