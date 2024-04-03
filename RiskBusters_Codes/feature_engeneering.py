@@ -239,26 +239,22 @@ def modify_df(df):
 
     return df
 
-
-columns_to_delete_H = ['inc_transactions_amt_H', 'out_transactions_amt_H', 'overdue_term_loan_H', 
-                       'overdue_credit_card_H', 'overdue_mortgage_H', 'income_H',
-                       'current_amount_balance_H', 'savings_amount_balance_H', 'inc_transactions_amt_H',
-                        'Savings_amount_balance_col_H', 'Current_amount_balance_col_H',
-                        'Overdue_term_loan_H', 'Overdue_credit_card_H', 'Overdue_mortgage_H',
-                        'inc_transactions_H', 'out_transactions_H', 'inc_transactions_amt_H', 'out_transactions_amt_H',
-                        'utilized_limit_in_revolving_loans_H', 'limit_in_revolving_loans_H']
-
-columns_to_delete = ['Current_installment', 'Birth_date', 'Ref_month',
-                     'Contract_end_date', 'Oldest_account_date']
-
-def drop_columns(df, columns_to_delete_H):
+def drop_columns(df, columns_to_delete_H, columns_to_delete):
     # delete columns from list columns_to_delete_H
 
-    for colname in columns_to_delete_H:
-        for i in range(13):
+    """for colname in columns_to_delete_H:
+        for i in range(1, 13):
             colname2 = colname + str(i)
             if colname2 in df.columns:
-                df = df.drop(colname2, axis=1)
+                df = df.drop(colname2, axis=1)"""
+    # Generate a list of columns to drop
+    columns_to_drop = [col + str(i) for col in columns_to_delete_H for i in range(1, 13)]
+
+    # Filter out columns that exist in the DataFrame
+    columns_to_drop = [col for col in columns_to_drop if col in df.columns]
+
+    # Drop the selected columns
+    df = df.drop(columns_to_drop, axis=1)
 
     # drop all columns from columns_to_delete
     df = df.drop(columns_to_delete, axis=1)
@@ -284,9 +280,6 @@ def create_differences_columns(df, columns_H):
 
 # drop columns with _H in the name
 def drop_columns_after_transformation(df, columns_H):
-    for colname in columns_H:
-        for i in range(13):
-                colname2 = colname + str(i)
-                if colname2 in df.columns:
-                    df = df.drop(colname2, axis=1)
+    columns_to_drop = [colname + str(i) for colname in columns_H for i in range(1, 13)]
+    df = df.drop(columns_to_drop, axis=1, errors='ignore')
     return df
